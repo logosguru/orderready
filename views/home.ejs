@@ -51,7 +51,7 @@
                         <% orders.forEach(function(order) { %>
                         <tr>
                             <td style="font-size:24pt"> <span style="border-left:10px solid #<%=store.color%>;">&nbsp;<%= order.order_no %></span></td>
-                            <td style="font-size:20pt"><%= moment(order.date_created).format( 'hh:mm A') %></td>
+                            <td style="font-size:20pt"><%= moment(order.date_created).tz("America/Los_Angeles").format( 'hh:mm A') %></td>
                             <td class="text-right"><button class="btn btn-warning btn-lg" onclick="delete_order('<%= order._id%>')">Delete</button></td>
                         </tr>
                         <% }); %>

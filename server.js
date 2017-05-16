@@ -6,7 +6,7 @@ var passport    = require('passport');
 var flash       = require('connect-flash');
 
 var morgan      = require('morgan');
-var moment      = require('moment');
+var moment      = require('moment-timezone');
 var cookieParser= require('cookie-parser');
 var bodyParser  = require('body-parser')
 var session     = require('express-session');
