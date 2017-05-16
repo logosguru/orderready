@@ -80,9 +80,9 @@ module.exports = function(app, passport, moment) {
         var Order = require('../app/models/order');
         Order.findOne({ 'store_name' :  req.body.store_name, 'order_no' : req.body.order_no }, function(err, order) {
             if (err)
-                return console.log(err);
+                console.log(err);
             if (order) {
-                return req.flash('orderMessage', 'That order number is already existing!');
+                req.flash('orderMessage', 'That order number is already existing!');
             }
             else {
                 var newOrder            = new Order();
