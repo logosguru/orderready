@@ -41,8 +41,15 @@ module.exports = function(app, passport) {
     // we will want this protected so you have to be logged in to visit
     // we will use route middleware to verify this (the isLoggedIn function)
     app.get('/home', isLoggedIn, function(req, res) {
-        res.render('home.ejs', {
-            store : req.user // get the user out of session and pass to template
+        var Order = require('../app/models/order');
+        Order.find({
+            store_name : req.user
+        }, function(err, orders) {
+            res.render('home.ejs', {
+                store : req.user, // get the user out of session and pass to template
+                orders : orders,
+                message: req.flash('orderMessage')
+            });
         });
     });
 
@@ -69,7 +76,7 @@ module.exports = function(app, passport) {
                 newOrder.order_no = req.body.order_no;
                 newOrder.save(function(err) {
                     if (err)
-                        throw err;
+                        return req.flash('orderMessage','Fail to save order. Please try again.');
                     res.redirect('/home');
                 });
             }
