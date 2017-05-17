@@ -1,5 +1,5 @@
 // app/routes.js
-module.exports = function(app, passport, moment) {
+module.exports = function(app, passport, moment, io) {
 
     // =====================================
     // LOGIN ===============================
@@ -106,6 +106,42 @@ module.exports = function(app, passport, moment) {
             else
                 return res.json('Deleted successfully');
         })
+    })
+
+    // =================================
+    // Client Screen ===================
+    // =================================
+    app.get('/client', (req, res) => {
+        var start = new Date();
+        start.setHours(0,0,0,0);
+        var end = new Date();
+        end.setHours(23,59,59,999);
+
+        var Order = require('../app/models/order');
+        Order.find({
+            date_created : {
+                $gte: start,
+                $lt: end
+            }
+        }).sort({
+            "date_created": 1
+        }).exec(function(err, orders) {
+            if (err)
+                return console.log(err);
+            res.render('client.ejs', {
+                orders : orders,
+                moment : moment
+            });
+        });
+        
+    });
+
+    io.on('connection', (socket) => {
+        console.log('connected...');
+        socket.emit('news', { hello: 'world'});
+        socket.on('my other event', function (data) {
+            console.log(data);
+        });
     })
 };
 
