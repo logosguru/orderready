@@ -77,20 +77,37 @@ module.exports = function(app, passport, moment, io) {
 
 
     app.post('/ready', isLoggedIn, (req, res) => {
+        var start = new Date();
+        start.setHours(0,0,0,0);
+        var end = new Date();
+        end.setHours(23,59,59,999);
+
         var Order = require('../app/models/order');
-        Order.findOne({ 'store_name' :  req.body.store_name, 'order_no' : req.body.order_no }, function(err, order) {
+        Order.findOne({ 
+            'store_name' : req.body.store_name, 
+            'order_no' : req.body.order_no,
+            date_created : {
+                $gte: start,
+                $lt: end
+            }            
+        }, function(err, order) {
             if (err)
                 console.log(err);
             if (order) {
                 req.flash('orderMessage', 'That order number is already existing!');
             }
             else {
-                var newOrder            = new Order();
+                var newOrder        = new Order();
                 newOrder.store_name = req.body.store_name;
                 newOrder.order_no = req.body.order_no;
                 newOrder.save(function(err) {
                     if (err)
                         return req.flash('orderMessage','Fail to save order. Please try again.');
+                    // send display clients to reload the page
+                    io.emit('order-added', {
+                        store_name: newOrder.store_name,
+                        order_no: newOrder.order_no
+                    });
                 });
             }
             res.redirect('/home');
@@ -103,8 +120,12 @@ module.exports = function(app, passport, moment, io) {
             _id: req.body.id
         }, (err, result) => {
             if (err) return req.flash('orderMessage', 'Fail to delete order. Please refresh the page and try again.');
-            else
+            else {
+                io.emit('order-deleted', {
+                    id: req.body.id
+                });                
                 return res.json('Deleted successfully');
+            }
         })
     })
 
@@ -134,6 +155,10 @@ module.exports = function(app, passport, moment, io) {
             });
         });
         
+    });
+
+    app.get('/display-client', (req, res) => {
+        res.render('display-client.ejs');
     });
 
     io.on('connection', (socket) => {
