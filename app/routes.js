@@ -48,8 +48,8 @@ module.exports = function(app, passport, moment, io) {
 
         var Order = require('../app/models/order');
         Order.find({
-            store_name : req.user.name,
-            date_created : {
+            'store.name' : req.user.name,
+            'date_created' : {
                 $gte: start,
                 $lt: end
             }
@@ -75,7 +75,9 @@ module.exports = function(app, passport, moment, io) {
         res.redirect('/');
     });
 
-
+    // =====================================
+    // Post Ready Order ====================
+    // =====================================
     app.post('/ready', isLoggedIn, (req, res) => {
         var start = new Date();
         start.setHours(0,0,0,0);
@@ -83,8 +85,10 @@ module.exports = function(app, passport, moment, io) {
         end.setHours(23,59,59,999);
 
         var Order = require('../app/models/order');
+        var Store = require('../app/models/store');
+
         Order.findOne({ 
-            'store_name' : req.body.store_name, 
+            'store.name' : req.body.store_name, 
             'order_no' : req.body.order_no,
             date_created : {
                 $gte: start,
@@ -97,17 +101,22 @@ module.exports = function(app, passport, moment, io) {
                 req.flash('orderMessage', 'That order number is already existing!');
             }
             else {
-                var newOrder        = new Order();
-                newOrder.store_name = req.body.store_name;
-                newOrder.order_no = req.body.order_no;
-                newOrder.save(function(err) {
-                    if (err)
-                        return req.flash('orderMessage','Fail to save order. Please try again.');
-                    // send display clients to reload the page
-                    io.emit('order-added', {
-                        store_name: newOrder.store_name,
-                        order_no: newOrder.order_no
+                Store.findOne({ name : req.body.store_name}, function (err, store) {
+                    if (err) console.log(err);
+                    
+                    var newOrder        = new Order();
+                    newOrder.store = { 'name': req.body.store_name, 'color' : store.color, 'image': store.image };
+                    newOrder.order_no = req.body.order_no;
+                    newOrder.save(function(err) {
+                        if (err)
+                            return req.flash('orderMessage','Fail to save order. Please try again.');
+                        // send display clients to reload the page
+                        io.emit('order-added', {
+                            order: newOrder
+                        });
                     });
+
+                        
                 });
             }
             res.redirect('/home');
@@ -128,6 +137,33 @@ module.exports = function(app, passport, moment, io) {
             }
         })
     })
+
+    // =================================
+    // API Call ========================
+    // =================================
+    app.get('/ready-list', function (req, res) {
+        var start = new Date();
+        start.setHours(0,0,0,0);
+        var end = new Date();
+        end.setHours(23,59,59,999);
+
+        var Order = require('../app/models/order');
+        Order.find({
+            date_created : {
+                $gte: start,
+                $lt: end
+            }
+        }).sort({
+            "date_created": 1
+        }).exec(function(err, orders) {
+            if (err)
+                res.json(500, { error: err });
+            else
+                res.json(orders);
+        });
+        
+    });
+
 
     // =================================
     // Client Screen ===================
@@ -154,11 +190,30 @@ module.exports = function(app, passport, moment, io) {
                 moment : moment
             });
         });
-        
     });
 
     app.get('/display-client', (req, res) => {
-        res.render('display-client.ejs');
+        var start = new Date();
+        start.setHours(0,0,0,0);
+        var end = new Date();
+        end.setHours(23,59,59,999);
+
+        var Order = require('../app/models/order');
+        Order.find({
+            date_created : {
+                $gte: start,
+                $lt: end
+            }
+        }).sort({
+            "date_created": 1
+        }).exec(function(err, orders) {
+            if (err)
+                return console.log(err);
+            res.render('display-client.ejs', {
+                orders : orders,
+                moment : moment
+            });
+        });
     });
 
     io.on('connection', (socket) => {

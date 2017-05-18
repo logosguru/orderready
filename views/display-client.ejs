@@ -33,28 +33,57 @@
 		.row {
 			background-color:#555555;
 		}
+        .order-list li {
+            color:#fff;
+            padding:5px 20px;
+            margin:0;
+            font-size:60px;
+        }
+        .order-list li img {
+            height: 50px;
+        }
 	</style>
  </head>
  <body>
-     <div class="container">
-        <h3>Display Test</h3>
-        <div class="row">
-            <div class="col-md-12">
-
-
-            </div>
-        </div>
-
-     </div>
+	<div class="row" style="padding:0;margin:0;">
+		<div class="col-md-12" style="padding:0;margin:0;">
+			<h1 style="background-color:#555;color:#fff;padding:20px;margin:0;">Now Serving</h1>
+            <ul class="nav nav-list order-list" style="margin:0;" id="ready-list">
+                <% orders.forEach(function(order) { %>
+				<li id="<%=order._id%>" style="background-color:#<%=order.store.color%>;">
+					<%=order.order_no%>
+					<span class="pull-right"><img src="images/<%=order.store.image%>" /></span>
+				</li>
+                <% }); %>
+            </ul>
+		</div>
+	</div>     
      <script type="text/javascript">
         $(document).ready(function () {
            var socket = io();
            socket.on('order-added', function (data) {
+               var order = data.order;
+               var ul = $('#ready-list');
+               ul.append(
+                    $('<li>').attr({
+                        id: order._id,
+                        style: 'background-color:#'+order.store.color
+                    }).text(order.order_no).append(
+                        $('<span class="pull-right">').append(
+                            $('<img>').attr('src','images/'+order.store.image)
+                        )
+                    )
+               );
                 //console.log(data);
-                window.location.reload(true);
+                //window.location.reload(true);
            });
            socket.on('order-deleted', function (data) {
-               console.log(data);
+               var id = data.id;
+               if (document.getElementById(id) !== null) {
+                    $('#'+id).remove();
+               }
+               else
+                window.location.reload(true);
            })
         });
      </script>

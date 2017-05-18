@@ -1,7 +1,11 @@
 var mongoose = require('mongoose');
 
 var orderSchema = mongoose.Schema({
-    store_name: String,
+    store: {
+        name: String,
+        color: String, 
+        image: String
+    },
     order_no: { type: String, required: true},
     date_created: { type: Date, default: Date.now }
 });
