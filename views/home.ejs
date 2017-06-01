@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<title> Display Order System </title>
-	<link href="https://fonts.googleapis.com/css?family=Roboto:700" rel="stylesheet">
+	<title> ViaPuerta Display Order System </title>
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 	<!-- Latest compiled and minified CSS -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<!-- Optional theme -->
@@ -50,9 +50,9 @@
                     <tbody>
                         <% orders.forEach(function(order) { %>
                         <tr>
-                            <td style="font-size:24pt"> <span style="border-left:10px solid #<%=store.color%>;">&nbsp;<%= order.order_no %></span></td>
+                            <td style="font-size:20pt"> <span style="border-left:10px solid #<%=store.color%>;">&nbsp;<%= order.order_no %></span></td>
                             <td style="font-size:20pt"><%= moment(order.date_created).tz("America/Los_Angeles").format( 'hh:mm A') %></td>
-                            <td class="text-right"><button class="btn btn-warning btn-lg" onclick="delete_order('<%= order._id%>')">Delete</button></td>
+                            <td class="text-right"><button class="btn btn-warning" onclick="delete_order('<%= order._id%>')">DELETE</button></td>
                         </tr>
                         <% }); %>
                     </tbody>
@@ -73,7 +73,7 @@
                                 <input type="text" placeholder="Order#" name="order_no" id="order_no" class="form-control" required>
                             </div>
                             <input type="hidden" name="store_name" value="<%= store.name %>" />
-                            <button class="btn btn-primary" type="submit">Submit</button>
+                            <button class="btn btn-primary" type="submit">SUBMIT</button>
                         </form>
                     </div>
                     <div class="col-md-4 col-sm-2 col-xs-12 text-right">
