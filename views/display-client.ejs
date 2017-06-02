@@ -48,9 +48,10 @@
 	<div class="row" style="padding:0;margin:0;">
 		<div class="col-md-12" style="padding:0;margin:0;">
 			<h1 style="background-color:#555;color:#fff;padding:20px;margin:0;">Now Serving</h1>
-            <ul class="nav nav-list order-list" style="margin:0;" id="ready-list">
+            <div id="sound"></div>
+            <ul class="nav nav-list order-list" style="margin:0;padding:0 8px;" id="ready-list">
                 <% orders.forEach(function(order) { %>
-				<li id="<%=order._id%>" style="background-color:#<%=order.store.color%>;">
+				<li id="<%=order._id%>" style="margin-bottom:2px;background-color:#<%=order.store.color%>;">
 					<%=order.order_no%>
 					<span class="pull-right"><img src="images/<%=order.store.image%>" /></span>
 				</li>
@@ -59,6 +60,11 @@
 		</div>
 	</div>     
      <script type="text/javascript">
+
+        function playSound(filename){   
+            document.getElementById("sound").innerHTML='<audio autoplay="autoplay"><source src="/sounds/' + filename + '.mp3" type="audio/mpeg" /><source src="/sounds/' + filename + '.ogg" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="/sounds/' + filename +'.mp3" /></audio>';
+        }
+     
         $(document).ready(function () {
            var socket = io();
            socket.on('order-added', function (data) {
@@ -74,8 +80,9 @@
                         )
                     )
                );
-                //console.log(data);
-                //window.location.reload(true);
+               // make sound
+               playSound('notice_sound');
+                
            });
            socket.on('order-deleted', function (data) {
                var id = data.id;

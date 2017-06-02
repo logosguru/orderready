@@ -100,12 +100,11 @@
                 if (res.ok) return res.json();
             })
             .then(data => {
-                console.log(data);
                 window.location.reload(true);
             })
         }
         $(document).ready(function () {
-           
+           $('#order_no').focus();
         });
      </script>
 </body>
