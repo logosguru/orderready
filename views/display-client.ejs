@@ -1,98 +1,152 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-	<title> Display Order System </title>
-	<link href="https://fonts.googleapis.com/css?family=Roboto:700" rel="stylesheet">
-	<!-- Latest compiled and minified CSS -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<!-- Optional theme -->
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-	<!-- Latest compiled and minified JavaScript -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <script src="/socket.io/socket.io.js"></script>
-	<style>
-		body {
-			font-family: 'Roboto', sans-serif;
-            color:#fff;
-		}
-		html,body,.col-md-12,.row {
-			height:100%;
-            background-color:#555555;
-		}
-        .table {
-            color:#000;
-        }
-        table thead {
-            color:#333;
-        }
-		.row {
-			background-color:#555555;
-		}
-        .order-list li {
-            color:#fff;
-            padding:5px 20px;
-            margin:0;
-            font-size:60px;
-        }
-        .order-list li img {
-            height: 50px;
-        }
-	</style>
- </head>
- <body>
-	<div class="row" style="padding:0;margin:0;">
-		<div class="col-md-12" style="padding:0;margin:0;">
-			<h1 style="background-color:#555;color:#fff;padding:20px;margin:0;">Now Serving</h1>
-            <div id="sound"></div>
-            <ul class="nav nav-list order-list" style="margin:0;padding:0 8px;" id="ready-list">
-                <% orders.forEach(function(order) { %>
-				<li id="<%=order._id%>" style="margin-bottom:2px;background-color:#<%=order.store.color%>;">
-					<%=order.order_no%>
-					<span class="pull-right"><img src="images/<%=order.store.image%>" /></span>
-				</li>
-                <% }); %>
-            </ul>
-		</div>
-	</div>     
-     <script type="text/javascript">
 
-        function playSound(filename){   
-            document.getElementById("sound").innerHTML='<audio autoplay="autoplay"><source src="/sounds/' + filename + '.mp3" type="audio/mpeg" /><source src="/sounds/' + filename + '.ogg" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="/sounds/' + filename +'.mp3" /></audio>';
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> Display Order System </title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:700" rel="stylesheet">
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <!-- Optional theme -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+  <!-- Latest compiled and minified JavaScript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: 'Roboto', sans-serif;
+      color: #fff;
+    }
+
+    html,
+    body,
+    .col-md-12,
+    .row {
+      height: 100%;
+      background-color: #555555;
+    }
+
+    .table {
+      color: #000;
+    }
+
+    table thead {
+      color: #333;
+    }
+
+    .row {
+      background-color: #555555;
+    }
+
+    .order-list li {
+      color: #fff;
+      padding: 0;
+      margin: 0;
+      float: left;
+      width: 50%;
+      height: 140px;
+      border-right: 2px solid #ddd;
+      border-bottom: 1px solid #eee;
+    }
+
+    .order-list div.order-number {
+      font-size: 110px;
+      letter-spacing: 0.1em;
+      text-align: center;
+    }
+
+    .order-list div.logo {
+      text-align: center;
+    }
+
+    .order-list li img {
+      height: 40px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="row" style="padding:0;margin:0;">
+    <div class="col-md-12" style="padding:0;margin:0;">
+      <h1 style="background-color:#555;color:#fff;padding:20px;margin:0;">Now Serving</h1>
+      <div id="sound"></div>
+      <ul class="nav nav-list order-list" style="margin:0;padding:0 8px;" id="ready-list">
+        <% if (orders.length == 0) { %>
+          <li id="59e4c5a4c430cc35206c7655" class="dummy" style="margin-bottom:2px;background-color:#FF5607;">
+            <div class="order-number">104</div>
+            <!--div class="logo"><img src="images/robot.png"></div-->
+          </li>
+          <li id="59e4c5d0c430cc35206c765a" class="dummy" style="margin-bottom:2px;background-color:#542400;">
+            <div class="order-number">98</div>
+            <!--div class="logo"><img src="images/brown.png"></div-->
+          </li>
+          <% } else { %>
+            <% orders.forEach(function(order) { %>
+              <li id="<%=order._id%>" style="margin-bottom:2px;background-color:#<%=order.store.color%>;">
+                <div class="order-number">
+                  <%=order.order_no%>
+                </div>
+                <!--div class="logo"><img src="images/<%=order.store.image%>" /></div-->
+              </li>
+              <% }); %>
+                <% } %>
+      </ul>
+    </div>
+  </div>
+  <script type="text/javascript">
+    function playSound(filename) {
+      document.getElementById("sound").innerHTML = '<audio autoplay="autoplay"><source src="/sounds/' + filename + '.mp3" type="audio/mpeg" /><source src="/sounds/' + filename +
+        '.ogg" type="audio/ogg" /><embed hidden="true" autostart="true" loop="false" src="/sounds/' + filename + '.mp3" /></audio>';
+    }
+
+    $(document).ready(function() {
+      var socket = io();
+      socket.on('order-added', function(data) {
+        var dummy = $('.dummy').length;
+        if (dummy > 0) {
+          // hide dummy orders
+          $('.dummy').hide();
         }
-     
-        $(document).ready(function () {
-           var socket = io();
-           socket.on('order-added', function (data) {
-               var order = data.order;
-               var ul = $('#ready-list');
-               ul.append(
-                    $('<li>').attr({
-                        id: order._id,
-                        style: 'background-color:#'+order.store.color
-                    }).text(order.order_no).append(
-                        $('<span class="pull-right">').append(
-                            $('<img>').attr('src','images/'+order.store.image)
-                        )
-                    )
-               );
-               // make sound
-               playSound('notice_sound');
-                
-           });
-           socket.on('order-deleted', function (data) {
-               var id = data.id;
-               if (document.getElementById(id) !== null) {
-                    $('#'+id).remove();
-               }
-               else
-                window.location.reload(true);
-           })
-        });
-     </script>
+
+        var order = data.order;
+        var ul = $('#ready-list');
+        ul.append(
+          /*
+          $('<li>').attr({
+            id: order._id,
+            style: 'background-color:#' + order.store.color
+          }).html('<div class="order-number">' + order.order_no + '</div>').append(
+            $('<div class="logo">').append(
+              $('<img>').attr('src', 'images/' + order.store.image)
+            )
+          )
+          */
+          $('<li>').attr({
+            id: order._id,
+            style: 'background-color:#' + order.store.color
+          }).html('<div class="order-number">' + order.order_no + '</div>')
+        );
+        // make sound
+        playSound('doorbell');
+
+      });
+
+      socket.on('order-deleted', function(data) {
+        /*
+        window.location.reload(true);
+        return;
+        */
+        var id = data.id;
+        if (document.getElementById(id) !== null)
+          $('#' + id).remove();
+        else
+          window.location.reload(true);
+      })
+    });
+  </script>
 </body>
+
 </html>

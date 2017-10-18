@@ -8,7 +8,7 @@ module.exports = function(app, passport, moment, io) {
     app.get('/', function(req, res) {
 
         // render the page and pass in any flash data if it exists
-        res.render('login.ejs', { message: req.flash('loginMessage') }); 
+        res.render('login.ejs', { message: req.flash('loginMessage') });
     });
 
     // process the login form
@@ -87,13 +87,13 @@ module.exports = function(app, passport, moment, io) {
         var Order = require('../app/models/order');
         var Store = require('../app/models/store');
 
-        Order.findOne({ 
-            'store.name' : req.body.store_name, 
+        Order.findOne({
+            'store.name' : req.body.store_name,
             'order_no' : req.body.order_no,
             date_created : {
                 $gte: start,
                 $lt: end
-            }            
+            }
         }, function(err, order) {
             if (err)
                 console.log(err);
@@ -103,7 +103,7 @@ module.exports = function(app, passport, moment, io) {
             else {
                 Store.findOne({ name : req.body.store_name}, function (err, store) {
                     if (err) console.log(err);
-                    
+
                     var newOrder        = new Order();
                     newOrder.store = { 'name': req.body.store_name, 'color' : store.color, 'image': store.image };
                     newOrder.order_no = req.body.order_no;
@@ -116,11 +116,30 @@ module.exports = function(app, passport, moment, io) {
                         });
                     });
 
-                        
+
                 });
             }
             res.redirect('/home');
         });
+    });
+
+    app.post('/repeat', (req, res) => {
+      var Order = require('../app/models/order');
+
+      Order.findById(req.body.id, (err, order) => {
+        if (err) return req.flash('orderMessage', 'Fail to repeat the order. Please refresh the page and try again.');
+        else {
+          order.date_created = new Date();
+          order.save((error, order) => {
+            io.emit('order-deleted', {
+              id: req.body.id
+            });
+            io.emit('order-added', {
+              order: order
+            });
+          });
+        }
+      })
     });
 
     app.delete('/home', (req, res) => {
@@ -132,7 +151,7 @@ module.exports = function(app, passport, moment, io) {
             else {
                 io.emit('order-deleted', {
                     id: req.body.id
-                });                
+                });
                 return res.json('Deleted successfully');
             }
         })
@@ -161,7 +180,7 @@ module.exports = function(app, passport, moment, io) {
             else
                 res.json(orders);
         });
-        
+
     });
 
 
@@ -231,7 +250,7 @@ module.exports = function(app, passport, moment, io) {
 // route middleware to make sure a user is logged in
 function isLoggedIn(req, res, next) {
 
-    // if user is authenticated in the session, carry on 
+    // if user is authenticated in the session, carry on
     if (req.isAuthenticated())
         return next();
 

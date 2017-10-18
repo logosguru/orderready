@@ -52,7 +52,10 @@
                         <tr>
                             <td style="font-size:20pt"> <span style="border-left:10px solid #<%=store.color%>;">&nbsp;<%= order.order_no %></span></td>
                             <td style="font-size:20pt"><%= moment(order.date_created).tz("America/Los_Angeles").format( 'hh:mm A') %></td>
-                            <td class="text-right"><button class="btn btn-warning" onclick="delete_order('<%= order._id%>')">DELETE</button></td>
+                            <td class="text-right">
+                              <button class="btn btn-primary" onclick="repeat_order('<%= order._id%>')">REPEAT</button>
+                              <button class="btn btn-warning" onclick="delete_order('<%= order._id%>')">DELETE</button>
+                            </td>
                         </tr>
                         <% }); %>
                     </tbody>
@@ -103,6 +106,26 @@
                 window.location.reload(true);
             })
         }
+
+        function repeat_order(id)
+        {
+          fetch('/repeat', {
+              method: 'post',
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                  'id': id
+              })
+          })
+          .then(res => {
+              if (res.ok) return res.json();
+          })
+          .then(data => {
+              window.location.reload(true);
+          })
+        }
+
         $(document).ready(function () {
            $('#order_no').focus();
         });
